@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Меню</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+
+<h1 style="position: relative;">
+<img src="sex.png" style="float: right; height: 50px;"></h1>
+
+
+<body class="container py-3" style="background:#f8f9fa;">
+
+<!-- СПОСОБ ОБСЛУЖИВАНИЯ -->
+
+<div class="options d-flex gap-3 mb-3">
+
+
+      <label><input type="checkbox"> 🚴 Delivery</label>
+      <label><input type="checkbox"> 🥡 Takeaway</label>
+      <label><input type="checkbox"> 🍽 Dine-in</label>
+    
+
+</div>
+<div id="cartBox" style="
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#fff;
+border-top:1px solid #ccc;
+padding:10px;
+z-index:999;
+">
+
+<b>Cart</b>
+
+<div id="cartItems"></div>
+
+<div id="cartTotal"></div>
+
+<div id="cartMsg" style="
+  margin-top:6px;
+  font-weight:bold;
+  display:none;
+"></div>
+
+<input id="custName" placeholder="Name">
+<input id="custPhone" placeholder="Phone">
+<input id="custAddr" placeholder="Address">
+
+<button id="sendCartBtn" class="btn btn-sm btn-primary mt-2">Отправить заказ</button>
+<button id="clearCartBtn" class="btn btn-sm btn-danger mt-2">Очистить корзину</button>
+</div>
+
+
+
+<!-- Скрытая кнопка (чтобы JS не падал) -->
+<button class="start-btn d-none"></button>
+
+
+<!-- КАТЕГОРИИ -->
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+
+
+<button class="btn btn-outline-primary filter-btn" data-category="Все">Все</button>
+<button class="btn btn-outline-primary filter-btn" data-category="Напитки">Напитки</button>
+<button class="btn btn-outline-primary filter-btn" data-category="Алкоголь">Алкоголь</button>
+<button class="btn btn-outline-primary filter-btn" data-category="Основные блюда">Основные блюда</button>
+<button class="btn btn-outline-primary filter-btn" data-category="Салаты">Салаты</button>
+<button class="btn btn-outline-primary filter-btn" data-category="Десерты">Десерты</button>
+
+</div>
+<div class="menu"></div>
+<footer>
+<a href="https://docs.google.com/spreadsheets/d/1PAi1zXz-S8jXxkUJHSeR22rrm6eyjjIkks_kyZ0vSgY/edit" 
+   id="adminLink" target="_blank" style="color:#8b004b; font-weight:bold;">⚙ admin</a>
+</footer>
+
+<script>
+/* ===== ORDER SYSTEM ===== */
+
+let orderType = '';
+
+function getOrderType() {
+
+  const checkboxes = document.querySelectorAll('.options input[type="checkbox"]');
+  for (const cb of checkboxes) {
+    if(cb.checked) return cb.nextSibling.textContent.trim();
+}
+return null;
+}
+  
+
+
+/* ===== ADD TO CART ===== */
+
+function sendOrder(name, price) {
+
+  const orderType = getOrderType();
+
+  if (!orderType) {
+    alert("Выберите способ обслуживания");
+    return;
+  }
+
+  // Всегда добавляем в корзину
+  addToCart(name, price, orderType);
+  updateCartDisplay();
+
+}
+
+</script>
+<script>
+
+const backupMenu = [
+  
+  {
+    name: "Coffe",
+    price: "3.00",
+    img: "IMG_1010.JPG",
+    desc: "arabica",
+    category: "Напитки"
+  },
+  {
+    name: "Soda",
+    price: "1.00",
+    img: "IMG_1012.JPG",
+    desc: "Colla,Fanta,Sprit",
+    category: "Напитки"
+  },
+  {
+    name: "Calzone",
+    price: "12.50",
+    img: "IMG_1006.JPG",
+    desc: "Ветчина,томаты,сыр,фарш",
+    category: "Основные блюда"
+  },
+  {
+    name: "Capricciosa",
+    price: "13.00",
+    img: "IMG_1007.JPG",
+    desc: "Томат,сыр,ветчина,оливки",
+    category: "Основные блюда"
+  }
+];
+
+
+let menuData = [];
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  const menuContainer = document.querySelector('.menu');
+  const buttons = document.querySelectorAll('.filter-btn');
+
+  const sheetUrl =
+  'https://opensheet.elk.sh/1PAi1zXz-S8jXxkUJHSeR22rrm6eyjjIkks_kyZ0vSgY/PizzaMenu';
+
+  fetch(sheetUrl)
+    .then(res => res.json())
+    .then(menu => {
+
+      menuData = menu;
+      window.menuData = menu;
+
+      console.log("menuData:", menuData);
+
+      renderMenu(menuData);
+      initFilters();
+
+    })
+    .catch(err => {
+
+      console.warn("Google Sheets недоступны, используется резервное меню");
+
+      menuData = backupMenu;
+      window.menuData = backupMenu;
+
+      renderMenu(menuData);
+      initFilters();
+
+    });
+
+
+  // ===== РЕНДЕР МЕНЮ =====
+
+  function renderMenu(menu) {
+
+    menuContainer.innerHTML = '';
+
+    menu.forEach(dish => {
+
+      const card = document.createElement('div');
+
+      card.className =
+        'card p-2 d-flex align-items-center';
+
+      card.style.maxWidth = '600px';
+      card.style.margin = '0 auto';
+      card.style.flexDirection = 'row';
+      card.style.gap = '10px';
+
+
+      card.innerHTML = `
+
+        <img src="${dish.img}"
+        style="width:80px;
+               height:80px;
+               object-fit:cover;
+               border-radius:6px;">
+
+
+        <div style="
+             flex:1;
+             display:flex;
+             flex-direction:column;
+             justify-content:center;
+             overflow-wrap: break-word;">
+          <h6 class="mb-1">${dish.name}</h6>
+          <small>${dish.desc || ''}</small>
+
+        </div>
+
+
+        <div style="
+             display:flex;
+             flex-direction:column;
+             justify-content:center;
+             align-items:flex-end;
+             min-width:90px;">
+         <strong>€${dish.price}</strong>
+
+          <button class="btn btn-primary btn-sm"
+          onclick="sendOrder('${dish.name}','${dish.price}')">
+          Заказать
+          </button>
+        </div>
+        `;
+
+      menuContainer.appendChild(card);
+
+    });
+
+  }
+
+
+  // ===== ФИЛЬТРЫ =====
+
+  function initFilters() {
+
+    buttons.forEach(btn => {
+
+      btn.addEventListener('click', () => {
+
+        const category = btn.dataset.category;
+
+        if (category === "Все") {
+
+          renderMenu(menuData);
+
+        } else {
+
+          const filtered =
+          menuData.filter(
+            d => d.category === category
+          );
+
+          renderMenu(filtered);
+
+        }
+
+      });
+
+    });
+
+  }
+
+});
+
+</script>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const checkboxes =
+    document.querySelectorAll('.options input[type="checkbox"]');
+
+  const cartBox =
+    document.getElementById("cartBox");
+
+  if (!checkboxes.length || !cartBox) return;
+
+  function updateCartVisibility() {
+    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+    cartBox.style.display = anyChecked ? "block" : "none";
+  }
+
+   checkboxes.forEach(cb => cb.addEventListener("change", updateCartVisibility));
+ 
+   updateCartVisibility();
+
+});
+
+</script>
+
+<script>
+
+// КОРЗИНА
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  const cartBox   = document.getElementById('cartBox');
+  const cartItems = document.getElementById('cartItems');
+  const cartTotal = document.getElementById('cartTotal');
+  const clearBtn  = document.getElementById('clearCartBtn');
+  const sendBtn   = document.getElementById('sendCartBtn');
+
+   const checkboxes =
+    document.querySelectorAll('input[type="checkbox"]');
+
+ window.cart = [];
+
+  const nameInput  = document.getElementById('custName');
+  const phoneInput = document.getElementById('custPhone');
+  const addrInput  = document.getElementById('custAddr');
+
+ 
+  function updateCustomerFields() {
+
+//==== функция скрытых полей ====
+
+ const cb = document.querySelector('input[type="checkbox"]:checked');
+
+  if(!cb) return;
+
+  const type =
+    cb.parentElement.textContent.trim();
+
+  if(type.includes("Delivery")) {
+
+    nameInput.style.display  = "block";
+    phoneInput.style.display = "block";
+    addrInput.style.display  = "block";
+
+  } else {
+
+    nameInput.style.display  = "none";
+    phoneInput.style.display = "none";
+    addrInput.style.display  = "none";
+
+  }
+
+}
+  /* ---------- СТИЛИ КОРЗИНЫ ---------- */
+
+  cartBox.style.transition = 'all 0.4s ease';
+  cartBox.style.position = 'fixed';
+  cartBox.style.bottom = '20px';
+  cartBox.style.left = '50%';
+  cartBox.style.transform = 'translate(-50%,80px) scale(0.9)';
+  cartBox.style.opacity = '0';
+  cartBox.style.width = '320px';
+
+  cartBox.style.background = '#28a745';
+  cartBox.style.color = '#fff';
+  cartBox.style.borderRadius = '8px';
+  cartBox.style.padding = '10px';
+  cartBox.style.zIndex = '999';
+  cartBox.style.display = 'block';
+
+
+
+  /* ---------- ДОБАВИТЬ В КОРЗИНУ ---------- */
+
+  window.addToCart = function(name, price) {
+      const cb = document.querySelector('input[type="checkbox"]:checked');
+      const type = cb ? cb.parentElement.textContent.trim() : "Unknown";
+    cart.push({
+      name,
+      price: parseFloat(price),
+      type
+    });
+
+    updateCartDisplay();
+
+  }
+
+
+
+  /* ---------- ПРОВЕРКА ЧЕКБОКСОВ ---------- */
+
+  function isAnyChecked() {
+
+    return document.querySelector(
+      'input[type="checkbox"]:checked'
+    );
+
+  }
+
+
+
+  /* ---------- ОБНОВЛЕНИЕ КОРЗИНЫ ---------- */
+
+  function updateCartDisplay() {
+
+    if(!isAnyChecked()) {
+
+      cartBox.style.opacity = '0';
+      cartBox.style.transform =
+        'translate(-50%,80px) scale(0.9)';
+
+      return;
+
+    }
+
+    cartBox.style.opacity = '1';
+    cartBox.style.transform =
+      'translate(-50%,0) scale(1)';
+
+
+    cartItems.innerHTML = '';
+
+    cart.forEach((item, idx) => {
+
+      const div = document.createElement('div');
+
+      div.style.display = 'flex';
+      div.style.justifyContent = 'space-between';
+      div.style.alignItems = 'center';
+      div.innerHTML = `
+         <span>[${item.type}] ${item.name} €${item.price.toFixed(2)}</span> 
+         <button data-idx="${idx}">X</button>
+        `;
+        
+      cartItems.appendChild(div);
+
+    });
+
+
+    const total =
+      cart.reduce(
+        (s,i)=>s+i.price,
+        0
+      );
+
+    cartTotal.textContent =
+      "Total: €" + total.toFixed(2);
+
+  }
+
+
+
+  /* ---------- УДАЛИТЬ ТОВАР ---------- */
+
+  cartItems.addEventListener(
+    'click',
+    function(e) {
+
+      const btn =
+        e.target.closest('button');
+
+      if(!btn) return;
+
+      const idx =
+        parseInt(btn.dataset.idx);
+
+      cart.splice(idx,1);
+
+      updateCartDisplay();
+
+    }
+  );
+
+
+
+  /* ---------- ОЧИСТИТЬ ---------- */
+
+  clearBtn.addEventListener(
+    'click',
+    function() {
+
+      cart = [];
+
+      cartItems.innerHTML = '';
+      cartTotal.textContent =
+        "Total: €0.00";
+
+    }
+  );
+
+
+
+  /* ---------- ОТПРАВКА ---------- */
+
+  sendBtn.addEventListener('click', function() {
+
+  // Получаем элементы
+  const cartMsg   = document.getElementById('cartMsg');
+  const nameInput  = document.getElementById('custName');
+  const phoneInput = document.getElementById('custPhone');
+  const addrInput  = document.getElementById('custAddr');
+
+  // Сбрасываем предыдущее сообщение
+  cartMsg.style.display = "none";
+  cartMsg.textContent = "";
+
+  if(cart.length === 0) {
+    cartMsg.style.display = "block";
+    cartMsg.style.color = "red";
+    cartMsg.textContent = "❌ Корзина пуста";
+    return;
+  }
+
+  const name  = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const addr  = addrInput.value.trim();
+
+  const checkedBoxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
+  const anyDelivery = checkedBoxes.some(cb => cb.parentElement.textContent.includes("Delivery"));
+
+  // Проверка только для Delivery
+  if(anyDelivery && (!name || !phone || !addr)) {
+    cartMsg.style.display = "block";
+    cartMsg.style.color = "red";
+    cartMsg.textContent = "❌ Заполните все поля для Delivery";
+    return;
+  }
+
+  // Формируем список товаров
+  let items = cart.map(i => `[${i.type}] ${i.name} €${i.price.toFixed(2)}`).join("\n");
+
+  const message = `🛒 ORDER
+${items}
+Name: ${name}
+Phone: ${phone}
+Address: ${addr}
+Time: ${new Date().toLocaleString()}`;
+
+  fetch("https://my-worker.andreyodr33.workers.dev", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({text: message})
+  })
+  .then(() => {
+    cartMsg.style.display = "block";
+    cartMsg.style.color = "#00ff88";
+    cartMsg.textContent = "✅ Заказ отправлен";
+
+    // Очистка корзины
+    cart = [];
+    cartItems.innerHTML = "";
+    cartTotal.textContent = "Total: €0.00";
+
+    setTimeout(() => { cartMsg.style.display = "none"; }, 2000);
+  })
+  .catch(() => {
+    cartMsg.style.display = "block";
+    cartMsg.style.color = "red";
+    cartMsg.textContent = "❌ Ошибка отправки";
+  });
+
+});
+
+    
+
+
+
+
+  /* ---------- СЛУШАЕМ ВСЕ ЧЕКБОКСЫ ---------- */
+
+  checkboxes.forEach(cb => {
+
+  cb.addEventListener('change', function() {
+    updateCartDisplay();
+    updateCustomerFields();
+  });
+
+});
+ updateCustomerFields();
+});
+
+</script>
+<script>
+
+<!-- Access protection for Google Sheets -->
+
+document.getElementById('adminLink').addEventListener('click', function(e){
+  e.preventDefault();
+
+  const pass = prompt("Enter password:");
+
+  if(pass === "12345"){ // Correct password
+   
+    window.location.href = this.href; // или this.click() via setTimeout
+  } else {
+    alert("Incorrect password!");
+  } 
+ 
+  
+</script>
+
+  
+
+</body>
+</html>
