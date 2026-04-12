@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const shortDesc = dish.desc
       ? (isMobile
-      ? dish.desc.slice(0, 60) + (dish.desc.length > 60 ? '...' : '')
+      ? dish.desc.slice(0, 40) + (dish.desc.length > 40 ? '...' : '')
       : dish.desc)
       : '';
       card.className =
