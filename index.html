@@ -295,8 +295,12 @@ document.addEventListener('DOMContentLoaded', function () {
     menu.forEach(dish => {
 
       const card = document.createElement('div');
+      const isMobile = window.innerWidth < 576;
+
       const shortDesc = dish.desc
+      ? (isMobile
       ? dish.desc.slice(0, 60) + (dish.desc.length > 60 ? '...' : '')
+      : dish.desc)
       : '';
       card.className =
         'card p-2 d-flex align-items-center';
