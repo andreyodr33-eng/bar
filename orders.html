@@ -5,7 +5,14 @@
   <title>Orders</title>
 </head>
 <body>
+<script>
+  const pass = prompt("Enter admin password:");
 
+  if (pass !== "12345") {
+    document.body.innerHTML = "<h2>Access denied</h2>";
+    throw new Error("Access denied");
+  }
+</script>
 
 
 <h2>Orders</h2>
