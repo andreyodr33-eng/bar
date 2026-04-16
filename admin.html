@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Orders</title>
+</head>
+<body>
+
+
+
+<h2>Orders</h2>
+
+<table border="1" width="100%" style="border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Type</th>
+      <th>Items</th>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>Address</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody id="orders"></tbody>
+</table>
+
+<script>
+fetch("https://my-worker.andreyodr33.workers.dev/get-orders", {
+  headers: {
+    "Authorization": "Bearer 12345"
+  }
+})  
+.then(r => r.json())
+.then(data => {
+
+  const tbody = document.getElementById('orders');
+
+  data.forEach(o => {
+
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>${o.id}</td>
+      <td colspan="6">${o.text}</td>
+    `;
+
+    tbody.appendChild(row);
+
+  });
+
+});
+</script>
+
+</body>
+</html>
