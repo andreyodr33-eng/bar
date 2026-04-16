@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
          <strong>€${dish.price}</strong>
 
           <button class="btn btn-primary btn-sm"
-          onclick="sendOrder('${dish.name}','${dish.price}')">
+          onclick='sendOrder("${dish.name}",${dish.price})'>
           Заказать
           </button>
         </div>
