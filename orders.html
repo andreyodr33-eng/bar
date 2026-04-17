@@ -43,9 +43,11 @@ function parseOrder(text) {
 
     // ❗ фильтр мусора
     if (
-      value === "Name" ||
-      value === "Phone" ||
-      value === "Address" ||
+      !value ||
+      value === label ||
+      value.includes ("Name") ||
+      value.includes ("Phone") ||
+      value.includes ("Address") ||
       value.includes("Table:")
     ) {
       return "";
