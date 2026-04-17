@@ -40,9 +40,8 @@ fetch("https://my-worker.andreyodr33.workers.dev/get-orders", {
 })  
 .then(r => r.json())
 .then(data => {
-data.sort((a, b) =>
-   new Date(b.time || 0) - new Date(a.time || 0)
-);
+data.sort((a, b) => b.id - a.id);
+   
   const tbody = document.getElementById('orders');
 
   data.forEach(o => {
