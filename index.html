@@ -653,12 +653,14 @@ Phone: ${phone}
 Address: ${addr}
 Table: ${tableNumber}
 Time: ${new Date().toLocaleString()}`;
-
+        
+const time = new Date().toLocaleString();
   fetch("https://my-worker.andreyodr33.workers.dev", {
     method: "POST",
     headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({text: message})
+    body: JSON.stringify({text: message,items: items,name: name,phone: phone,address: addr,type: getOrderType(),time: time})
   })
+  
   .then(() => {
     cartMsg.style.display = "block";
     cartMsg.style.color = "#00ff88";
