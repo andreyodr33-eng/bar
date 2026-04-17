@@ -16,6 +16,7 @@
 
 
 <h2>Orders</h2>
+<button onclick="archiveAndClear()">Archive & Clear</button>  
 <table border="1" width="100%" style="border-collapse:collapse;">
   <thead>
     <tr>
@@ -132,7 +133,33 @@ fetch("https://my-worker.andreyodr33.workers.dev/get-orders", {
 });
 
 </script>
+<script>
+function archiveAndClear() {
 
+  if (!confirm("Архивировать и очистить заказы?")) return;
+
+  let csv = "ID,Type,Items,Name,Phone,Address,Time\n";
+
+  currentData.forEach(o => {
+    csv += ${o.id},${o.type},${o.items},${o.name},${o.phone},${o.address},${o.time}\n;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = orders_${new Date().toISOString().slice(0,10)}.csv;
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+  currentData = [];
+  renderTable([]);
+
+  alert("Архив сохранён и таблица очищена");
+}
+</script>
 
 </body>
 </html>
