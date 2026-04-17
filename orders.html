@@ -16,7 +16,9 @@
 
 
 <h2>Orders</h2>
-<button onclick="archiveAndClear()">Archive & Clear</button>  
+<div style="margin-bottom:10px;">  
+<button onclick="archiveAndClear()">Archive & Clear</button>
+</div>  
 <table border="1" width="100%" style="border-collapse:collapse;">
   <thead>
     <tr>
@@ -141,7 +143,7 @@ function archiveAndClear() {
   let csv = "ID,Type,Items,Name,Phone,Address,Time\n";
 
   currentData.forEach(o => {
-    csv += ${o.id},${o.type},${o.items},${o.name},${o.phone},${o.address},${o.time}\n;
+    csv += `${o.id},${o.type},${o.items},${o.name},${o.phone},${o.address},${o.time}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -149,7 +151,7 @@ function archiveAndClear() {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = orders_${new Date().toISOString().slice(0,10)}.csv;
+  a.download = `orders_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 
   URL.revokeObjectURL(url);
