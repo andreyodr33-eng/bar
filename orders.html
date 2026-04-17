@@ -36,13 +36,23 @@ let currentData = [];
 
 // 🔍 Разбор текста заказа
 function parseOrder(text) {
+
+  function extract(label) {
+    const match = text.match(new RegExp(label + ":\\s*([^\\n]+)"));
+    return match ? match[1].trim() : "";
+  }
+
   return {
-    type: (text.match(/$begin:math:display$\(\.\*\?\)$end:math:display$/) || [])[1] || "",
-    items: (text.split("Name:")[0] || "").replace("🛒 ORDER", "").trim(),
-    name: (text.match(/Name:\s*(.*)/) || [])[1]?.split("\n") [0] || "",
-    phone: (text.match(/Phone:\s*(.*)/) || [])[1]?.split("\n") [0] || "",
-    address: (text.match(/Address:\s*(.*)/) || [])[1]?.split("\n") [0] || "",
-    time: (text.match(/Time:\s*(.*)/) || [])[1] || ""
+    type: (text.match(/\[(.*?)\]/) || [])[1] || "",
+
+    items: (text.split("Name:")[0] || "")
+      .replace("🛒 ORDER", "")
+      .trim(),
+
+    name: extract("Name"),
+    phone: extract("Phone"),
+    address: extract("Address"),
+    time: extract("Time")
   };
 }
 
