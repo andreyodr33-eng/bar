@@ -16,49 +16,99 @@
 
 
 <h2>Orders</h2>
-
 <table border="1" width="100%" style="border-collapse:collapse;">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Type</th>
-      <th>Items</th>
-      <th>Name</th>
-      <th>Phone</th>
-      <th>Address</th>
-      <th>Time</th>
+      <th onclick="sortTable('id')">ID</th>
+      <th onclick="sortTable('type')">Type</th>
+      <th onclick="sortTable('items')">Items</th>
+      <th onclick="sortTable('name')">Name</th>
+      <th onclick="sortTable('phone')">Phone</th>
+      <th onclick="sortTable('address')">Address</th>
+      <th onclick="sortTable('time')">Time</th>
     </tr>
   </thead>
   <tbody id="orders"></tbody>
 </table>
-
 <script>
-fetch("https://my-worker.andreyodr33.workers.dev/get-orders", {
-  headers: {
-    "Authorization": "Bearer 12345"
-  }
-})  
-.then(r => r.json())
-.then(data => {
-data.sort((a, b) => b.id - a.id);
-   
+
+let currentData = [];
+
+// 🔍 Разбор текста заказа
+function parseOrder(text) {
+  return {
+    type: (text.match(/$begin:math:display$\(\.\*\?\)$end:math:display$/) || [])[1] || "",
+    items: (text.split("Name:")[0] || "").replace("🛒 ORDER", "").trim(),
+    name: (text.match(/Name:\s*(.*)/) || [])[1]?.split("\n") [0] || "",
+    phone: (text.match(/Phone:\s*(.*)/) || [])[1]?.split("\n") [0] || "",
+    address: (text.match(/Address:\s*(.*)/) || [])[1]?.split("\n") [0] || "",
+    time: (text.match(/Time:\s*(.*)/) || [])[1] || ""
+  };
+}
+
+// 📊 Отрисовка таблицы
+function renderTable(data) {
   const tbody = document.getElementById('orders');
+  tbody.innerHTML = "";
 
   data.forEach(o => {
-
     const row = document.createElement('tr');
 
     row.innerHTML = `
       <td>${o.id}</td>
-      <td colspan="6">${o.text}</td>
+      <td>${o.type}</td>
+      <td>${o.items}</td>
+      <td>${o.name}</td>
+      <td>${o.phone}</td>
+      <td>${o.address}</td>
+      <td>${o.time}</td>
     `;
 
     tbody.appendChild(row);
+  });
+}
 
+// 🔃 Сортировка
+function sortTable(field) {
+
+  let sorted = [...currentData];
+
+  sorted.sort((a, b) => {
+
+    if (field === "id") return b.id - a.id;
+
+    let x = (a[field] || "").toLowerCase();
+    let y = (b[field] || "").toLowerCase();
+
+    return x.localeCompare(y);
   });
 
+  renderTable(sorted);
+}
+
+// 🌐 Загрузка данных
+fetch("https://my-worker.andreyodr33.workers.dev/get-orders", {
+  headers: {
+    "Authorization": "Bearer 12345"
+  }
+})
+.then(r => r.json())
+.then(data => {
+
+  currentData = data.map(o => {
+    const parsed = parseOrder(o.text);
+    return { id: o.id, ...parsed };
+  });
+
+  // 👉 авто-сортировка при загрузке (новые сверху)
+  currentData.sort((a, b) => b.id - a.id);
+
+  renderTable(currentData);
+
 });
+
 </script>
+
 
 </body>
 </html>
