@@ -39,7 +39,19 @@ function parseOrder(text) {
 
   function extract(label) {
     const match = text.match(new RegExp(label + ":\\s*([^\\n]+)"));
-    return match ? match[1].trim() : "";
+    let value = match ? match[1].trim() : "";
+
+    // ❗ фильтр мусора
+    if (
+      value === "Name" ||
+      value === "Phone" ||
+      value === "Address" ||
+      value.includes("Table:")
+    ) {
+      return "";
+    }
+
+    return value;
   }
 
   return {
