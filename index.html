@@ -747,11 +747,38 @@ document.getElementById('adminLink').addEventListener('click', function(e){
  });  
 </script>
 
-<script>
-function toggleZoom(card) {
-  card.classList.toggle("active");
+
+ <script> 
+  function toggleZoom(card) {
+
+  const isActive = card.classList.contains("active");
+  const desc = card.querySelector(".desc");
+
+  if (!isActive) {
+
+    card.classList.add("active");
+
+    // 👉 полный текст
+    desc.textContent = card.fullDesc;
+
+    document.body.style.overflow = "hidden";
+
+  } else {
+
+    card.classList.remove("active");
+
+    const isMobile = window.innerWidth < 576;
+
+    // 👉 возвращаем как было
+    const short = card.fullDesc.slice(0, 60) +
+      (card.fullDesc.length > 60 ? "..." : "");
+
+    desc.textContent = isMobile ? short : card.fullDesc;
+
+    document.body.style.overflow = "";
+  }
 }
-</script> 
+</script>      
 <div style="height:200px"></div>  
 
 </body>
