@@ -335,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
     menu.forEach(dish => {
 
       const card = document.createElement('div');
+      card.fullDesc = dish.desc ? dish.desc : "";
       const isMobile = window.innerWidth < 576;
 
      const fullDesc = dish.desc || '';
