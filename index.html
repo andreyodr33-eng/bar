@@ -747,39 +747,17 @@ document.getElementById('adminLink').addEventListener('click', function(e){
  });  
 </script>
 
-
-<script>  
-  function toggleZoom(card) {
-
-  const isActive = card.classList.contains("active");
-  const desc = card.querySelector(".desc");
-
-  if (!isActive) {
-
-    // открыть fullscreen
-    card.classList.add("active");
-
-    // ВСЕГДА полный текст
+<script>
+function toggleZoom(card) {
+  card.classList.toggle("active");
+}
+   // ВСЕГДА полный текст
     desc.textContent = card.dataset.fullDesc;
 
     document.body.style.overflow = "hidden";
 
   } else {
-
-    // закрыть fullscreen
-    card.classList.remove("active");
-
-    const isMobile = window.innerWidth < 576;
-
-    // вернуть нужную версию текста
-    desc.textContent = isMobile
-      ? card.dataset.shortDesc
-      : card.dataset.fullDesc;
-
-    document.body.style.overflow = "";
-  }
-}
-</script>      
+</script> 
 <div style="height:200px"></div>  
 
 </body>
