@@ -336,12 +336,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const card = document.createElement('div');
       const isMobile = window.innerWidth < 576;
-      const fullDesc = dish.desc || "";
-      const shortDesc = dish.desc
-      ? (isMobile
-      ? dish.desc.slice(0, 40) + (dish.desc.length > 40 ? '...' : '')
-      : dish.desc)
-      : '';
+
+     const fullDesc = dish.desc || '';
+     const shortDesc = dish.desc
+     ? dish.desc.slice(0, 60) + (dish.desc.length > 60 ? '...' : '')
+     : '';
+
+
+      
       card.className ='card p-2 d-flex align-items-center';
 
       card.classList.add("card-zoom");
