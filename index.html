@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
      const fullDesc = dish.desc || '';
      const shortDesc = dish.desc
-     ? dish.desc.slice(0, 60) + (dish.desc.length > 60 ? '...' : '')
+     ? dish.desc.slice(0, 40) + (dish.desc.length > 40 ? '...' : '')
      : '';
 
      card.className ='card p-2 d-flex align-items-center';
