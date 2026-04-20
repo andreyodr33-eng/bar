@@ -314,8 +314,10 @@ document.addEventListener('DOMContentLoaded', function () {
       ? dish.desc.slice(0, 40) + (dish.desc.length > 40 ? '...' : '')
       : dish.desc)
       : '';
-      card.className =
-        'card p-2 d-flex align-items-center';
+      card.className ='card p-2 d-flex align-items-center';
+
+      card.classList.add("card-zoom");
+      card.onclick = () => toggleZoom(card);
 
       card.style.maxWidth = '600px';
       card.style.margin = '0 auto';
@@ -356,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
          <strong>€${dish.price}</strong>
 
           <button class="btn btn-primary btn-sm"
-          onclick="sendOrder('${dish.name}','${dish.price}')">
+          onclick="event.stopPropagation(); sendOrder('${dish.name}','${dish.price}')">
           Заказать
           </button>
         </div>
