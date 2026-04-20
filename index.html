@@ -746,33 +746,12 @@ document.getElementById('adminLink').addEventListener('click', function(e){
   } 
  });  
 </script>
-<script>
-  function toggleZoom(card) {
 
-  const desc = card.querySelector(".desc");
-
-  if (!card.classList.contains("active")) {
-
-    card.classList.add("active");
-
-    // 👉 показываем полный текст
-    desc.textContent = card.fullDesc;
-
-    document.body.style.overflow = "hidden";
-
-  } else {
-
-    card.classList.remove("active");
-
-    // 👉 возвращаем короткий текст
-    const short = card.fullDesc.slice(0, 60) + (card.fullDesc.length > 60 ? "..." : "");
-    desc.textContent = short;
-
-    document.body.style.overflow = "";
-
-  }
+ <script>
+function toggleZoom(card) {
+  card.classList.toggle("active");
 }
-</script>
+</script> 
 <div style="height:200px"></div>  
 
 </body>
