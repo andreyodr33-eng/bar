@@ -17,7 +17,7 @@
 
 <h2>Orders</h2>
 <div style="margin-bottom:10px;">  
-<button onclick="archiveTable()">💾 Сохранить</button>
+<button onclick="archiveAndClear()">💾 Сохранить</button>
 <button onclick="clearOrders()">🧹 Очистить базу</button>  
 </div>  
 <table border="1" width="100%" style="border-collapse:collapse;">
@@ -61,7 +61,7 @@ function parseOrder(text) {
   }
 
   return {
-    type: (text.match(/\[(.*?)\]/) || [])[1] || "",
+    type: (text.match(/\[(.*?)\]/) || [,""])[1] || "",
 
     items: (text.split("Name:")[0] || "")
       .replace("🛒 ORDER", "")
