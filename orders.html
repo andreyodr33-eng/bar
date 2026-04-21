@@ -61,7 +61,7 @@ function parseOrder(text) {
   }
 
   return {
-    type: (text.match(/\[(.*?)\]/) || [,""])[1] || "",
+    type: (text.match(/\[(.*?)\]/) || [])[1] || "",
 
     items: (text.split("Name:")[0] || "")
       .replace("🛒 ORDER", "")
