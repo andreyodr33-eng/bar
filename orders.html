@@ -3,6 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Orders</title>
+  <style>
+.logout-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: red;
+  color: white;
+  border: none;
+  font-size: 18px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.logout-btn:hover {
+  background: darkred;
+}
+</style>
 </head>
 <body>
 <script>
@@ -18,7 +37,8 @@
 <h2>Orders</h2>
 <div style="margin-bottom:10px;">  
 <button onclick="archiveAndClear()">💾 Сохранить</button>
-<button onclick="clearOrders()">🧹 Очистить базу</button>  
+<button onclick="clearOrders()">🧹 Очистить базу</button>
+<button onclick="logout()" class="logout-btn">x</button> 
 </div>  
 <table border="1" width="100%" style="border-collapse:collapse;">
   <thead>
@@ -177,6 +197,12 @@ function clearOrders() {
   .then(() => {
     location.reload(); // обновить таблицу
   });
+}
+</script>
+  <script>
+function logout() {
+  localStorage.removeItem("admin_auth");
+  window.location.href = "/"; // или укажи свой сайт
 }
 </script>
 </body>
