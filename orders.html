@@ -163,6 +163,21 @@ function archiveAndClear() {
   alert("Архив сохранён и таблица очищена");
 }
 </script>
+<script>
+function clearOrders() {
 
+  if (!confirm("Удалить ВСЕ заказы?")) return;
+
+  fetch("https://my-worker.andreyodr33.workers.dev/clear-orders", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer 12345"
+    }
+  })
+  .then(() => {
+    location.reload(); // обновить таблицу
+  });
+}
+</script>
 </body>
 </html>
