@@ -48,6 +48,7 @@
 }
 /* ===== НОВАЯ БОКОВАЯ КАРТОЧКА ===== */
 
+
 .layout-wrap{
   display:flex;
   gap:24px;
@@ -56,55 +57,62 @@
 
 .main-column{
   flex:1;
-  min-width:0;
+  min-width:0; /* критично для iPhone */
+}
+
+.menu{
+  width:100%;
+  max-width:100%;
+}
+
+/* карточки меню не вылезают */
+.menu .card,
+.menu .card-zoom{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
 }
 
 .info-sidebar{
   width:300px;
-  position:sticky;
-  top:20px;
+  flex-shrink:0;
 }
 
-.place-card{
-  background:#fff;
-  border-radius:16px;
-  padding:20px;
-  box-shadow:0 4px 18px rgba(0,0,0,.08);
-}
+/* ===== MOBILE ===== */
+@media (max-width:768px){
 
-.place-card h4{
-  margin-bottom:14px;
-}
-
-.place-card p{
-  margin-bottom:10px;
-}
-
-.call-link{
-  display:block;
-  text-decoration:none;
-  font-weight:700;
-  font-size:1.15rem;
-  margin:14px 0;
-}
-
-.map-link{
-  text-decoration:none;
-}
-
-/* Мобильный режим */
-@media (max-width: 768px){
   .layout-wrap{
-    flex-direction:column;
+    display:block;   /* вместо flex */
+  }
+
+  .main-column,
+  .menu{
+    width:100%;
+    max-width:100%;
   }
 
   .info-sidebar{
     width:100%;
-    position:static;
-    order:2; /* уходит вниз */
-    margin-bottom:100px; /* чтобы не перекрыла корзина */
+    margin-top:20px;
   }
+
+  /* фикс переполнения на айфонах */
+  body{
+    overflow-x:hidden;
+  }
+
+  .container{
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  .card,
+  button{
+    max-width:100%;
+  }
+
 }
+
 
 </style>
 
