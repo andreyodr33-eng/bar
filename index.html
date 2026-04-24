@@ -46,6 +46,65 @@
 
   padding: 20px;
 }
+/* ===== НОВАЯ БОКОВАЯ КАРТОЧКА ===== */
+
+.layout-wrap{
+  display:flex;
+  gap:24px;
+  align-items:flex-start;
+}
+
+.main-column{
+  flex:1;
+  min-width:0;
+}
+
+.info-sidebar{
+  width:300px;
+  position:sticky;
+  top:20px;
+}
+
+.place-card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.place-card h4{
+  margin-bottom:14px;
+}
+
+.place-card p{
+  margin-bottom:10px;
+}
+
+.call-link{
+  display:block;
+  text-decoration:none;
+  font-weight:700;
+  font-size:1.15rem;
+  margin:14px 0;
+}
+
+.map-link{
+  text-decoration:none;
+}
+
+/* Мобильный режим */
+@media (max-width: 768px){
+  .layout-wrap{
+    flex-direction:column;
+  }
+
+  .info-sidebar{
+    width:100%;
+    position:static;
+    order:2; /* уходит вниз */
+    margin-bottom:100px; /* чтобы не перекрыла корзина */
+  }
+}
 
 </style>
 
