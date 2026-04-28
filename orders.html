@@ -87,7 +87,7 @@ function parseOrder(text) {
     items: (text.split("Name:")[0] || "")
       .replace("🛒 ORDER", "")
       .trim(),
-
+    table: extract("Table"),
     name: extract("Name"),
     phone: extract("Phone"),
     address: extract("Address"),
@@ -106,6 +106,7 @@ function renderTable(data) {
     row.innerHTML = `
       <td>${o.id}</td>
       <td>${o.type}</td>
+      <td>${o.table} || ""}</td>
       <td>${o.items}</td>
       <td>${o.name}</td>
       <td>${o.phone}</td>
