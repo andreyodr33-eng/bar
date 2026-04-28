@@ -45,7 +45,6 @@
     <tr>
       <th onclick="sortTable('id')">ID</th>
       <th onclick="sortTable('type')">Type</th>
-      <th onclick="sortTable('table')">Table</th>
       <th onclick="sortTable('items')">Items</th>
       <th onclick="sortTable('name')">Name</th>
       <th onclick="sortTable('phone')">Phone</th>
@@ -87,7 +86,7 @@ function parseOrder(text) {
     items: (text.split("Name:")[0] || "")
       .replace("🛒 ORDER", "")
       .trim(),
-    table: extract("Table"),
+    
     name: extract("Name"),
     phone: extract("Phone"),
     address: extract("Address"),
@@ -106,7 +105,6 @@ function renderTable(data) {
     row.innerHTML = `
       <td>${o.id}</td>
       <td>${o.type}</td>
-      <td>${o.table} || ""}</td>
       <td>${o.items}</td>
       <td>${o.name}</td>
       <td>${o.phone}</td>
