@@ -886,6 +886,29 @@ document.getElementById('adminLink').addEventListener('click', function(e){
     document.body.style.overflow = "";
   }
 }
+//ЗАСТАВКА    
+window.addEventListener(
+    "load",
+    ()=>{
+
+        setTimeout(
+            ()=>{
+
+                document
+                    .getElementById(
+                        "splash"
+                    )
+                    .style.display =
+                    "none";
+
+            },
+
+            1000
+
+        );
+
+    }
+);   
 </script>      
 <div style="height:200px"></div>  
 
