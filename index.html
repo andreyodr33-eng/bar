@@ -321,8 +321,10 @@ function sendOrder(name, price) {
 
   // Всегда добавляем в корзину
   addToCart(name, price, orderType);
- // updateCartDisplay();
-
+ 
+ if (fromModal) {
+   alert("В корзине");
+ }
 }
 
 </script>
@@ -535,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
          <strong>€${dish.price}</strong>
 
           <button class="btn btn-primary btn-sm"
-          onclick="event.stopPropagation(); sendOrder('${dish.name}','${dish.price}')">
+          onclick="event.stopPropagation(); sendOrder('${dish.name}','${dish.price}' true)">
           Заказать
           </button>
         </div>
