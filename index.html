@@ -811,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if(cart.length === 0) {
     cartMsg.style.display = "block";
     cartMsg.style.color = "red";
-    cartMsg.textContent = "❌ Корзина пуста";
+    cartMsg.textContent = "❌ Cart is empty";
     return;
   }
 
@@ -826,7 +826,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if(anyDelivery && (!name || !phone || !addr)) {
     cartMsg.style.display = "block";
     cartMsg.style.color = "red";
-    cartMsg.textContent = "❌ Заполните все поля для Delivery";
+    cartMsg.textContent = "❌ Pleas complete all delivery fields";
     return;
   }
 
