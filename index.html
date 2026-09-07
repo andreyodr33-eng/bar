@@ -319,7 +319,22 @@ function getOrderType() {
 }
 return null;
 }
-  
+const orderTypeBoxes = document.querySelectorAll('.options input[type="checkbox"]');
+orderTypeBoxes.forEach(box => {
+box.addEventListener('change', function() {
+if (this.checked) {
+
+  orderTypeBoxes.forEach(other => {
+
+    if (other !== this) {
+      other.checked = false;
+    }
+
+  });
+
+}
+});
+}); 
 
 
 /* ===== ADD TO CART ===== */
