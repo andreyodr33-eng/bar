@@ -1,82 +1,69 @@
-const CACHE_NAME = "bar-pwa-v2";
-
+const CACHE_NAME = "bar-pwa-v3";
 const urlsToCache = [
-    "./",
-    "./index.html",
-    "./style.css",
-    "./manifest.json"
-];
+"./",
+"./index.html",
+"./orders.html",
+"./manifest.json",
+"./icon-512.png",
+"./icon-192.png",
+"./icon-180.png", 
+"./icon-32.png",   
+"./sex.png",
 
+// Изображения блюд
+"./reserve/IMG_1006.JPG",
+"./reserve/barbekiu.png",
+"./reserve/bavarska.png"
+];
 
 // Установка
 self.addEventListener("install", event => {
 
-    event.waitUntil(
-
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                return cache.addAll(urlsToCache);
-            })
-
-    );
-
-    self.skipWaiting();
-
+event.waitUntil(
+    caches.open(CACHE_NAME)
+        .then(cache => cache.addAll(urlsToCache))
+        .then(() => self.skipWaiting())
+);
 });
-
 
 // Активация
 self.addEventListener("activate", event => {
 
-    event.waitUntil(
-
-        caches.keys()
-            .then(cacheNames => {
-
-                return Promise.all(
-
-                    cacheNames.map(cacheName => {
-
-                        if (cacheName !== CACHE_NAME) {
-
-                            return caches.delete(cacheName);
-
-                        }
-
-                    })
-
-                );
-
-            })
-
-    );
-
-    self.clients.claim();
-
+event.waitUntil(
+    caches.keys()
+        .then(names => Promise.all(
+            names
+                .filter(name =>
+                    name.startsWith("bar-pwa-") &&
+                    name !== CACHE_NAME
+                )
+                .map(name => caches.delete(name))
+        ))
+        .then(() => self.clients.claim())
+);
 });
-
 
 // Запросы
 self.addEventListener("fetch", event => {
 
-    if (event.request.method !== "GET") {
-        return;
-    }
+if (event.request.method !== "GET") return;
 
-    event.respondWith(
+event.respondWith(
+    caches.match(event.request)
+        .then(response => {
 
-        caches.match(event.request)
-            .then(response => {
+            if (response) return response;
 
-                if (response) {
-                    return response;
-                }
+            return fetch(event.request);
 
-                return fetch(event.request);
+        })
+        .catch(() => {
 
-            })
+            if (event.request.mode === "navigate") {
+                return caches.match("./index.html");
+            }
 
-    );
-
+        })
+);
 });
 
