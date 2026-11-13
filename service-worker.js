@@ -12,8 +12,23 @@ const urlsToCache = [
 
 // Изображения блюд
 "./reserve/IMG_1006.JPG",
+"./reserve/IMG_1010.JPG", 
+"./reserve/IMG_1012.JPG",   
 "./reserve/barbekiu.png",
-"./reserve/bavarska.png"
+"./reserve/bavarska.png",
+"./reserve/carbonara.png",
+"./reserve/chotyry-miasa.png",
+"./reserve/chotyry-syry.png",
+"./reserve/diablo.png",
+"./reserve/fieria.png",
+"./reserve/havayska.png",
+"./reserve/marharyta.png",
+"./reserve/meksykanska.png",
+"./reserve/paperoni.png",
+ "./reserve/provans.png",
+"./reserve/selianska.png",
+"./reserve/syrne-kurcha.png",
+ "./reserve/z-hrybamy.png"   
 ];
 
 // Установка
