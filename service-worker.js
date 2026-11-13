@@ -79,6 +79,6 @@ event.respondWith(
             }
 
         })
-);
+   );
 });
 
