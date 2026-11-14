@@ -1,19 +1,25 @@
-const CACHE_NAME = "bar-pwa-v3";
-const urlsToCache = [
+const APP_CACHE = "bar-pwa-v4";
+const IMAGE_CACHE = "bar-images-v1";
+
+// Основные файлы приложения
+const APP_FILES = [
 "./",
 "./index.html",
 "./orders.html",
 "./manifest.json",
 "./icon-512.png",
 "./icon-192.png",
-"./icon-180.png", 
-"./icon-32.png",   
-"./sex.png",
+"./icon-180.png",
+"./icon-32.png",
+"./sex.png"
+];
 
-// Изображения блюд
+// Резервные фотографии.
+// Отсутствие отдельной фотографии не должно мешать установке.
+const RESERVE_IMAGES = [
 "./reserve/IMG_1006.JPG",
-"./reserve/IMG_1010.JPG", 
-"./reserve/IMG_1012.JPG",   
+"./reserve/IMG_1010.JPG",
+"./reserve/IMG_1012.JPG",
 "./reserve/barbekiu.png",
 "./reserve/bavarska.png",
 "./reserve/carbonara.png",
@@ -25,36 +31,54 @@ const urlsToCache = [
 "./reserve/marharyta.png",
 "./reserve/meksykanska.png",
 "./reserve/paperoni.png",
- "./reserve/provans.png",
+"./reserve/provans.png",
 "./reserve/selianska.png",
 "./reserve/syrne-kurcha.png",
- "./reserve/z-hrybamy.png"   
+"./reserve/z-hrybamy.png"
 ];
 
 // Установка
 self.addEventListener("install", event => {
-
 event.waitUntil(
-    caches.open(CACHE_NAME)
-        .then(cache => cache.addAll(urlsToCache))
-        .then(() => self.skipWaiting())
+Promise.all([
+caches.open(APP_CACHE).then(async cache => {
+for (const file of APP_FILES) {
+try {
+await cache.add(file);
+} catch (error) {
+console.warn("Не удалось сохранить файл:", file);
+}
+}
+}),
+
+        caches.open(IMAGE_CACHE).then(async cache => {
+            for (const file of RESERVE_IMAGES) {
+                try {
+                    await cache.add(file);
+                } catch (error) {
+                    console.warn("Нет резервного изображения:", file);
+                }
+            }
+        })
+    ]).then(() => self.skipWaiting())
 );
 });
 
 // Активация
 self.addEventListener("activate", event => {
-
 event.waitUntil(
-    caches.keys()
-        .then(names => Promise.all(
-            names
-                .filter(name =>
-                    name.startsWith("bar-pwa-") &&
-                    name !== CACHE_NAME
-                )
-                .map(name => caches.delete(name))
-        ))
-        .then(() => self.clients.claim())
+caches.keys()
+.then(names => Promise.all(
+names
+.filter(name =>
+(name.startsWith("bar-pwa-") &&
+name !== APP_CACHE) ||
+(name.startsWith("bar-images-") &&
+name !== IMAGE_CACHE)
+)
+.map(name => caches.delete(name))
+))
+.then(() => self.clients.claim())
 );
 });
 
@@ -63,22 +87,68 @@ self.addEventListener("fetch", event => {
 
 if (event.request.method !== "GET") return;
 
+// Фотографии: сначала интернет, при его отсутствии — кэш
+if (event.request.destination === "image") {
+
+    event.respondWith(
+        (async () => {
+            const cache = await caches.open(IMAGE_CACHE);
+
+            try {
+                const response = await fetch(event.request);
+
+                // Сохраняем обычные и непрозрачные ответы Cloudinary
+                if (response.ok || response.type === "opaque") {
+                    try {
+                        await cache.put(
+                            event.request,
+                            response.clone()
+                        );
+                    } catch (error) {
+                        console.warn("Ошибка сохранения изображения:", error);
+                    }
+                }
+
+                return response;
+
+            } catch (error) {
+
+                const savedImage = await cache.match(event.request);
+
+                if (savedImage) {
+                    return savedImage;
+                }
+
+                return new Response("", {
+                    status: 503,
+                    statusText: "Изображение недоступно офлайн"
+                });
+            }
+        })()
+    );
+
+    return;
+}
+
+// Остальные запросы
 event.respondWith(
-    caches.match(event.request)
-        .then(response => {
+    (async () => {
+        const cached = await caches.match(event.request);
 
-            if (response) return response;
+        if (cached) return cached;
 
-            return fetch(event.request);
-
-        })
-        .catch(() => {
+        try {
+            return await fetch(event.request);
+        } catch (error) {
 
             if (event.request.mode === "navigate") {
-                return caches.match("./index.html");
+                const index = await caches.match("./index.html");
+                if (index) return index;
             }
 
-        })
-   );
+            throw error;
+        }
+    })()
+);
 });
 
