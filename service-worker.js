@@ -1,5 +1,5 @@
-const APP_CACHE = "bar-pwa-v4";
-const IMAGE_CACHE = "bar-images-v1";
+const APP_CACHE = "bar-pwa-v5";
+const IMAGE_CACHE = "bar-images-v2";
 
 // Основные файлы приложения
 const APP_FILES = [
