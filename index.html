@@ -518,9 +518,7 @@ document.addEventListener('DOMContentLoaded', function () {
       renderMenu(menuData);
       initFilters();
 
-    });
-
-// Передаём все фотографии меню в Service Worker
+   // Передаём все фотографии меню в Service Worker
 navigator.serviceWorker.ready.then(registration => {
 
 const sw = navigator.serviceWorker.controller || registration.active;
@@ -534,7 +532,7 @@ if (sw) {
     });
 }
 });
-
+ });
   // ===== РЕНДЕР МЕНЮ =====
 
   function renderMenu(menu) {
@@ -1039,4 +1037,5 @@ if ("serviceWorker" in navigator) {
 </script>
 </body>
 </html>
+
 
