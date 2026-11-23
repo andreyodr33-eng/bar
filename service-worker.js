@@ -130,42 +130,43 @@ if (event.request.method !== "GET") return;
 // Фотографии: сначала кэш, затем интернет
 if (event.request.destination === "image") {
 
-event.respondWith(
-    (async () => {
+event.respondWith((async () => {
 
-        const cache = await caches.open(IMAGE_CACHE);
+    const cache = await caches.open(IMAGE_CACHE);
 
-        // Сначала ищем сохранённую фотографию
-        const savedImage = await cache.match(event.request);
+    // Сначала ищем фотографию в кэше
+    const savedImage = await cache.match(event.request, {
+        ignoreVary: true
+    });
 
-        if (savedImage) {
-            return savedImage;
+    if (savedImage) {
+        return savedImage;
+    }
+
+    // Если в кэше нет — загружаем из интернета
+    try {
+
+        const response = await fetch(event.request);
+
+        if (response.ok || response.type === "opaque") {
+            await cache.put(
+                event.request,
+                response.clone()
+            );
         }
 
-        // Если фотографии нет в кэше — обращаемся к интернету
-        try {
-            const response = await fetch(event.request);
+        return response;
 
-            if (response.ok || response.type === "opaque") {
-                await cache.put(
-                    event.request,
-                    response.clone()
-                );
-            }
+    } catch (error) {
 
-            return response;
+        return new Response("", {
+            status: 503,
+            statusText: "Изображение недоступно офлайн"
+        });
 
-        } catch (error) {
+    }
 
-            return new Response("", {
-                status: 503,
-                statusText: "Изображение недоступно офлайн"
-            });
-
-        }
-
-    })()
-);
+})());
 
 return;
 }
@@ -191,6 +192,7 @@ event.respondWith(
     })()
 );
 });
+
 
 
 
