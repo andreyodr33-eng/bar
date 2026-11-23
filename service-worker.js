@@ -1,5 +1,5 @@
 const APP_CACHE = "bar-pwa-v5";
-const IMAGE_CACHE = "bar-images-v2";
+const IMAGE_CACHE = "bar-images-v3";
 
 // Основные файлы приложения
 const APP_FILES = [
@@ -87,47 +87,47 @@ self.addEventListener("fetch", event => {
 
 if (event.request.method !== "GET") return;
 
-// Фотографии: сначала интернет, при его отсутствии — кэш
+// Фотографии: сначала кэш, затем интернет
 if (event.request.destination === "image") {
 
-    event.respondWith(
-        (async () => {
-            const cache = await caches.open(IMAGE_CACHE);
+event.respondWith(
+    (async () => {
 
-            try {
-                const response = await fetch(event.request);
+        const cache = await caches.open(IMAGE_CACHE);
 
-                // Сохраняем обычные и непрозрачные ответы Cloudinary
-                if (response.ok || response.type === "opaque") {
-                    try {
-                        await cache.put(
-                            event.request,
-                            response.clone()
-                        );
-                    } catch (error) {
-                        console.warn("Ошибка сохранения изображения:", error);
-                    }
-                }
+        // Сначала ищем сохранённую фотографию
+        const savedImage = await cache.match(event.request);
 
-                return response;
+        if (savedImage) {
+            return savedImage;
+        }
 
-            } catch (error) {
+        // Если фотографии нет в кэше — обращаемся к интернету
+        try {
+            const response = await fetch(event.request);
 
-                const savedImage = await cache.match(event.request);
-
-                if (savedImage) {
-                    return savedImage;
-                }
-
-                return new Response("", {
-                    status: 503,
-                    statusText: "Изображение недоступно офлайн"
-                });
+            if (response.ok || response.type === "opaque") {
+                await cache.put(
+                    event.request,
+                    response.clone()
+                );
             }
-        })()
-    );
 
-    return;
+            return response;
+
+        } catch (error) {
+
+            return new Response("", {
+                status: 503,
+                statusText: "Изображение недоступно офлайн"
+            });
+
+        }
+
+    })()
+);
+
+return;
 }
 
 // Остальные запросы
@@ -151,4 +151,5 @@ event.respondWith(
     })()
 );
 });
+
 
