@@ -100,20 +100,6 @@ event.waitUntil((async () => {
             const request = new Request(url, {
                 mode: "no-cors"
             });
-// Передаём все фотографии меню в Service Worker
-navigator.serviceWorker.ready.then(registration => {
-
-const sw = navigator.serviceWorker.controller || registration.active;
-
-if (sw) {
-    sw.postMessage({
-        type: "CACHE_MENU_IMAGES",
-        urls: menuData
-            .map(dish => dish.img)
-            .filter(Boolean)
-    });
-}
-});
             // Если фотография уже сохранена — повторно не загружаем
             const saved = await cache.match(request, {
                 ignoreVary: true
@@ -205,6 +191,7 @@ event.respondWith(
     })()
 );
 });
+
 
 
 
