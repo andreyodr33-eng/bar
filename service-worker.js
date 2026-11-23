@@ -81,7 +81,47 @@ name !== IMAGE_CACHE)
 .then(() => self.clients.claim())
 );
 });
+// Получение адресов фотографий из menuData
+self.addEventListener("message", event => {
 
+if (event.data?.type !== "CACHE_MENU_IMAGES") return;
+
+const urls = event.data.urls;
+
+if (!Array.isArray(urls)) return;
+
+event.waitUntil((async () => {
+
+    const cache = await caches.open(IMAGE_CACHE);
+
+    await Promise.all(urls.map(async url => {
+
+        try {
+            const request = new Request(url, {
+                mode: "no-cors"
+            });
+
+            // Если фотография уже сохранена — повторно не загружаем
+            const saved = await cache.match(request, {
+                ignoreVary: true
+            });
+
+            if (saved) return;
+
+            const response = await fetch(request);
+
+            if (response.ok || response.type === "opaque") {
+                await cache.put(request, response.clone());
+            }
+
+        } catch (error) {
+            console.warn("Не удалось сохранить фотографию:", url, error);
+        }
+
+    }));
+
+})());
+});
 // Запросы
 self.addEventListener("fetch", event => {
 
@@ -151,5 +191,6 @@ event.respondWith(
     })()
 );
 });
+
 
 
