@@ -518,22 +518,7 @@ document.addEventListener('DOMContentLoaded', function () {
       renderMenu(menuData);
       initFilters();
 
-   // Передаём все фотографии меню в Service Worker
-navigator.serviceWorker.ready.then(registration => {
-
-const sw = navigator.serviceWorker.controller || registration.active;
-
-if (sw) {
-    sw.postMessage({
-        type: "CACHE_MENU_IMAGES",
-        urls: menuData
-            .map(dish => dish.img)
-            .filter(Boolean)
-    });
-}
-});
- });
-  // ===== РЕНДЕР МЕНЮ =====
+    // ===== РЕНДЕР МЕНЮ =====
 
   function renderMenu(menu) {
 
