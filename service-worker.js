@@ -1,5 +1,4 @@
-const APP_CACHE = "bar-pwa-v6";
-const IMAGE_CACHE = "bar-images-v5";
+const CACHE_NAME = "bar-pwa-v7";
 
 // Основные файлы приложения
 const APP_FILES = [
@@ -14,143 +13,116 @@ const APP_FILES = [
 "./sex.png"
 ];
 
-// Резервные фотографии.
-// Отсутствие отдельной фотографии не должно мешать установке.
-const RESERVE_IMAGES = [
-"./reserve/IMG_1006.JPG",
-"./reserve/IMG_1010.JPG",
-"./reserve/IMG_1012.JPG",
-"./reserve/barbekiu.png",
-"./reserve/bavarska.png",
-"./reserve/carbonara.png",
-"./reserve/chotyry-miasa.png",
-"./reserve/chotyry-syry.png",
-"./reserve/diablo.png",
-"./reserve/fieria.png",
-"./reserve/havayska.png",
-"./reserve/marharyta.png",
-"./reserve/meksykanska.png",
-"./reserve/paperoni.png",
-"./reserve/provans.png",
-"./reserve/selianska.png",
-"./reserve/syrne-kurcha.png",
-"./reserve/z-hrybamy.png"
-];
+// =====================================
+// УСТАНОВКА
+// =====================================
 
-// Установка
 self.addEventListener("install", event => {
-event.waitUntil(
-Promise.all([
-caches.open(APP_CACHE).then(async cache => {
+
+event.waitUntil((async () => {
+
+const cache = await caches.open(CACHE_NAME);
+
 for (const file of APP_FILES) {
-try {
-await cache.add(file);
-} catch (error) {
-console.warn("Не удалось сохранить файл:", file);
-}
-}
-}),
 
-        caches.open(IMAGE_CACHE).then(async cache => {
-            for (const file of RESERVE_IMAGES) {
-                try {
-                    await cache.add(file);
-                } catch (error) {
-                    console.warn("Нет резервного изображения:", file);
-                }
-            }
-        })
-    ]).then(() => self.skipWaiting())
-);
+  try {
+    await cache.add(file);
+  } catch (error) {
+    console.warn("Не удалось сохранить файл:", file, error);
+  }
+
+}
+
+await self.skipWaiting();
+})());
+
 });
 
-// Активация
+// =====================================
+// АКТИВАЦИЯ
+// =====================================
+
 self.addEventListener("activate", event => {
-event.waitUntil(
-caches.keys()
-.then(names => Promise.all(
-names
-.filter(name =>
-(name.startsWith("bar-pwa-") &&
-name !== APP_CACHE) ||
-(name.startsWith("bar-images-") &&
-name !== IMAGE_CACHE)
-)
-.map(name => caches.delete(name))
-))
-.then(() => self.clients.claim())
+
+event.waitUntil((async () => {
+
+const names = await caches.keys();
+
+await Promise.all(
+  names
+    .filter(name =>
+      name.startsWith("bar-pwa-") &&
+      name !== CACHE_NAME
+    )
+    .map(name => caches.delete(name))
 );
+
+await self.clients.claim();
+})());
+
 });
-          
-// Запросы
+
+// =====================================
+// ЗАПРОСЫ
+// =====================================
+
 self.addEventListener("fetch", event => {
 
-if (event.request.method !== "GET") return;
+const request = event.request;
 
-// Фотографии: сначала кэш, затем интернет
-if (event.request.destination === "image") {
+if (request.method !== "GET") return;
 
 event.respondWith((async () => {
 
-    const cache = await caches.open(IMAGE_CACHE);
+const cache = await caches.open(CACHE_NAME);
 
-    // Сначала ищем фотографию в кэше
-    const savedImage = await cache.match(event.request, {
-        ignoreVary: true
-    });
+// Проверяем наличие файла в кэше
+const saved = await cache.match(request);
 
-    if (savedImage) {
-        return savedImage;
-    }
-
-    // Если в кэше нет — загружаем из интернета
-    try {
-
-        const response = await fetch(event.request);
-
-        if (response.ok || response.type === "opaque") {
-            await cache.put(
-                event.request,
-                response.clone()
-            );
-        }
-
-        return response;
-
-    } catch (error) {
-
-        return new Response("", {
-            status: 503,
-            statusText: "Изображение недоступно офлайн"
-        });
-
-    }
-
-})());
-
-return;
+if (saved) {
+  return saved;
 }
 
-// Остальные запросы
-event.respondWith(
-    (async () => {
-        const cached = await caches.match(event.request);
+// Если файл отсутствует в кэше,
+// загружаем его из интернета
+try {
 
-        if (cached) return cached;
+  const response = await fetch(request);
 
-        try {
-            return await fetch(event.request);
-        } catch (error) {
+  // Сохраняем успешный ответ
+  if (response.ok || response.type === "opaque") {
 
-            if (event.request.mode === "navigate") {
-                const index = await caches.match("./index.html");
-                if (index) return index;
-            }
+    try {
+      await cache.put(request, response.clone());
+    } catch (error) {
+      console.warn("Не удалось сохранить:", request.url, error);
+    }
 
-            throw error;
-        }
-    })()
-);
+  }
+
+  return response;
+
+} catch (error) {
+
+  // Если нет интернета,
+  // возвращаем сохранённую главную страницу
+  if (request.mode === "navigate") {
+
+    const index = await cache.match("./index.html");
+
+    if (index) return index;
+
+  }
+
+  // Остальные недоступные файлы
+  return new Response("", {
+    status: 503,
+    statusText: "Файл недоступен офлайн"
+  });
+
+}
+})());
+
 });
 
 
