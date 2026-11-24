@@ -81,27 +81,7 @@ name !== IMAGE_CACHE)
 .then(() => self.clients.claim())
 );
 });
-            // Если фотография уже сохранена — повторно не загружаем
-            const saved = await cache.match(request, {
-                ignoreVary: true
-            });
-
-            if (saved) return;
-
-            const response = await fetch(request);
-
-            if (response.ok || response.type === "opaque") {
-                await cache.put(request, response.clone());
-            }
-
-        } catch (error) {
-            console.warn("Не удалось сохранить фотографию:", url, error);
-        }
-
-    }));
-
-})());
-});
+          
 // Запросы
 self.addEventListener("fetch", event => {
 
